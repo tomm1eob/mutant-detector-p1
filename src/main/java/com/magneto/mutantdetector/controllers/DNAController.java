@@ -3,7 +3,6 @@ package com.magneto.mutantdetector.controllers;
 import com.magneto.mutantdetector.entities.DNA;
 import com.magneto.mutantdetector.services.DNAServiceImpl;
 import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController

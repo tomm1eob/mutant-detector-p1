@@ -3,6 +3,7 @@ package com.magneto.mutantdetector.services;
 import com.magneto.mutantdetector.entities.Base;
 import com.magneto.mutantdetector.entities.DNA;
 import com.magneto.mutantdetector.repositories.BaseRepository;
+import com.magneto.mutantdetector.verifications.DNAverification;
 import jakarta.transaction.Transactional;
 
 import java.io.Serializable;
@@ -44,22 +45,10 @@ public abstract class BaseServiceImpl<E extends Base, ID extends Serializable> i
     @Transactional
     public E save(E entity) throws Exception {
         try {
-            final int LONGITUD_SECUENCIA = 4;
-            final int SECUENCIAS_NECESARIAS = 2;
+            String[] dna = ((DNA) entity).getDna();
 
-            String[] dna = ((DNA) entity).getDna();  // Suponiendo que obtienes el ADN de la entidad
+            ((DNA) entity).setEsMutant(comprobarDNA(dna));
 
-            // Algoritmo para verificar si es mutante
-            long secuenciasEncontradas = IntStream.range(0, dna.length)
-                    .boxed() // Convertimos a Stream<Integer>
-                    .flatMap(fila -> IntStream.range(0, dna[0].length())
-                            .mapToObj(columna -> new int[]{fila, columna})) // Usamos arrays en lugar de clase Posicion
-                    .filter(pos -> esParteDeSecuencia(dna, pos[0], pos[1]))
-                    .count();
-
-            boolean esMutante = secuenciasEncontradas >= SECUENCIAS_NECESARIAS;
-
-            ((DNA) entity).setEsMutant(esMutante);
             // Guardar la entidad
             entity = baseRepository.save(entity);
 
@@ -69,7 +58,23 @@ public abstract class BaseServiceImpl<E extends Base, ID extends Serializable> i
         }
     }
 
-    private boolean esParteDeSecuencia(String[] dna, int fila, int columna) {
+    public static boolean comprobarDNA(String[] dna){
+        final int LONGITUD_SECUENCIA = 4;
+        final int SECUENCIAS_NECESARIAS = 2;
+        DNAverification.validateDNA(dna);
+
+        long secuenciasEncontradas = IntStream.range(0, dna.length)
+                .boxed() // Convertimos a Stream<Integer>
+                .flatMap(fila -> IntStream.range(0, dna[0].length())
+                        .mapToObj(columna -> new int[]{fila, columna}))
+                .filter(pos -> esParteDeSecuencia(dna, pos[0], pos[1]))
+                .count();
+
+        boolean esMutante = secuenciasEncontradas >= SECUENCIAS_NECESARIAS;
+        return esMutante;
+    }
+
+    private static boolean esParteDeSecuencia(String[] dna, int fila, int columna) {
         return buscarSecuencia(dna, fila, columna, 0, 1) || // Horizontal
                 buscarSecuencia(dna, fila, columna, 1, 0) || // Vertical
                 buscarSecuencia(dna, fila, columna, 1, 1) || // Diagonal izq -> der
@@ -77,7 +82,7 @@ public abstract class BaseServiceImpl<E extends Base, ID extends Serializable> i
     }
 
 
-    private boolean buscarSecuencia(String[] dna, int fila, int columna, int incFila, int incColumna) {
+    private static boolean buscarSecuencia(String[] dna, int fila, int columna, int incFila, int incColumna) {
         int filas = dna.length;
         int columnas = dna[0].length();
         char caracterInicial = dna[fila].charAt(columna);

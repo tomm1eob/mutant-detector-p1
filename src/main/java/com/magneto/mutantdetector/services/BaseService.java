@@ -1,6 +1,5 @@
 package com.magneto.mutantdetector.services;
 
-import com.magneto.mutantdetector.dto.StatsDto;
 import com.magneto.mutantdetector.entities.Base;
 import java.io.Serializable;
 import java.util.List;

@@ -1,6 +1,5 @@
 package com.magneto.mutantdetector.services;
 
-import com.magneto.mutantdetector.dto.StatsDto;
 import com.magneto.mutantdetector.entities.DNA;
 import com.magneto.mutantdetector.repositories.BaseRepository;
 import com.magneto.mutantdetector.repositories.DNARepository;
